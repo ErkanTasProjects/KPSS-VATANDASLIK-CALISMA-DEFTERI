@@ -610,6 +610,44 @@
             if(tab==='quiz') startTopicQuiz(currentTopic);
         }
 
+        /* --- FLASHCARDS LOGIC (m7) --- */
+        let fcIndex = 0;
+        function renderFlipCard() {
+            const cardEl = document.getElementById('fc-el');
+            // Remove flip class to reset side
+            cardEl.classList.remove('flipped');
+            
+            setTimeout(() => {
+                document.getElementById('fc-front').innerText = flashcardsDB[fcIndex].front;
+                document.getElementById('fc-back').innerText = flashcardsDB[fcIndex].back;
+                document.getElementById('fc-progress').innerText = (fcIndex + 1) + " / " + flashcardsDB.length;
+            }, 150); // wait briefly for un-flip transition to start before changing text
+        }
+        
+        function nextFlipCard() {
+            if(fcIndex < flashcardsDB.length - 1) {
+                fcIndex++;
+                renderFlipCard();
+            }
+        }
+        
+        function prevFlipCard() {
+            if(fcIndex > 0) {
+                fcIndex--;
+                renderFlipCard();
+            }
+        }
+        
+        // When showing m7, render the first card
+        const originalShowModule = showModule;
+        showModule = function(id, btn) {
+            originalShowModule(id, btn);
+            if(id === 'm7') {
+                fcIndex = 0;
+                renderFlipCard();
+            }
+        };
+
         // --- M4 & M1: DENEMELER ---
         function initM4() {
             const list = document.getElementById('m4-list'); list.innerHTML = '';
