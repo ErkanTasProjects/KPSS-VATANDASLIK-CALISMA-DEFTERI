@@ -257,7 +257,19 @@
                             <div id="tab-lecture" style="flex:1; text-align:center; padding:1rem; font-weight:700; color:var(--primary); border-bottom:3px solid var(--primary); cursor:pointer;" onclick="switchStationTab('lecture')">Konu Anlatımı</div>
                             <div id="tab-quiz" style="flex:1; text-align:center; padding:1rem; font-weight:700; color:var(--text-muted); cursor:pointer;" onclick="switchStationTab('quiz')">Konu Testi</div>
                         </div>
-                        <div id="content-lecture" style="line-height:1.7; color:var(--text-main); font-size:1.05rem;"></div>
+                        <div id="content-lecture" style="display:block;">
+                            <!-- FLASHCARD UI -->
+                            <div class="flashcard-container" style="perspective: 1000px; position:relative;">
+                                <div id="flashcard-el" class="flashcard glass-card clickable-card" style="min-height: 250px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:1.2rem; padding: 2rem; margin-bottom:1.5rem; transition: transform 0.4s; transform-style: preserve-3d; background: linear-gradient(145deg, var(--surface), rgba(79,70,229,0.1)); border-color: rgba(79,70,229,0.3);">
+                                    Card Content
+                                </div>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <button class="btn" style="width: auto; background: var(--surface-hover);" onclick="prevCard()"><i class="fa-solid fa-arrow-left"></i> Önceki</button>
+                                    <span id="flashcard-progress" style="font-weight:700; color:var(--text-muted);">1 / 5</span>
+                                    <button class="btn" style="width: auto;" onclick="nextCard()">İleri <i class="fa-solid fa-arrow-right"></i></button>
+                                </div>
+                            </div>
+                        </div>
                         <div id="content-quiz" style="display:none;"><div id="m2-quiz-container"></div></div>
                     </div>
                 </div>
@@ -331,15 +343,100 @@
     <script>
         /* --- DB & DATA LAYER (Same as before) --- */
         const topics = [
-            { id: 't1', name: 'Temel Hukuk Kavramları', icon: 'fa-scale-balanced', lecture: `<h4>Sosyal Hayatı Düzenleyen Kurallar</h4><p>Hukuk kurallarını diğerlerinden (din, ahlak) ayıran özellik <strong>maddi yaptırımlı</strong> olmasıdır.</p><p><strong>Mutlak Butlan:</strong> Kurucu unsurlar var ama kanuna aykırı. (Amcayla evlenmek gibi)</p><br><p><strong>Hak Ehliyeti:</strong> Ana rahmine düştüğü an başlar.</p>` },
-            { id: 't2', name: 'Anayasal Kavramlar', icon: 'fa-landmark-dome', lecture: `<h4>Hükümet Sistemleri</h4><p><strong>Parlamenter Sistem:</strong> Kuvvetlerin yumuşak ayrılığıdır. Yürütme yasamadan çıkar. Türkiye'de 2017'ye kadar uygulanmıştır.</p><p><strong style="color:var(--warning);">ÖSYM UYARI:</strong> Türkiye 2017'de Cumhurbaşkanlığı Hükümet Sistemine geçti ve Başbakanlık makamı tamamen kaldırıldı.</p>` },
-            { id: 't3', name: 'Anayasa Tarihi', icon: 'fa-book-atlas', lecture: `<h4>Geçmiş Anayasalar</h4><p><strong>1921 Anayasası:</strong> Tek çerçeve ve tek yumuşak anayasadır.</p><p>Sosyal Devlet ve Hukuk Devleti kavramları hayatımıza ilk defa <strong>1961 Anayasası</strong> ile girmiştir.</p>` },
-            { id: 't4', name: 'Temel Hak ve Ödevler', icon: 'fa-person-rays', lecture: `<h4>Jellinek Sınıflandırması</h4><p><strong>Kişi Hakları:</strong> Yaşama hakkı, mülkiyet, din hürriyeti.</p><p><strong>Sosyal Haklar:</strong> Eğitim, sağlık, çalışma hakkı.</p><p><strong>Siyasi Haklar:</strong> Sadece vatandaşlar içindir. Seçme, seçilme, dilekçe hakkı.</p>` },
-            { id: 't5', name: 'Yasama (TBMM)', icon: 'fa-building-columns', lecture: `<h4>TBMM Bilgileri</h4><p>Meclis 600 vekilden oluşur. Toplantı yeter sayısı 200'dür.</p><p><strong style="color:var(--warning);">DİKKAT:</strong> Kanun teklif etmeye sadece Milletvekilleri yetkilidir. CB kanun teklif EDEMEZ (Bütçe kanunu hariç).</p>` },
-            { id: 't6', name: 'Yürütme', icon: 'fa-briefcase', lecture: `<h4>Cumhurbaşkanı</h4><p>Seçilme yaşı 40'tır. Yükseköğrenim şarttır.</p><p>OHAL kararlarını CB en fazla 6 ay için alabilir.</p><p>Makama CB Yardımcısı vekalet eder.</p>` },
-            { id: 't7', name: 'Yargı', icon: 'fa-gavel', lecture: `<h4>Yüksek Mahkemeler</h4><p>AYM, Yargıtay, Danıştay, Uyuşmazlık Mahkemesi.</p><p><strong style="color:var(--warning);">UYARI:</strong> Sayıştay ve YSK yüksek mahkeme DEĞİLDİR!</p>` },
-            { id: 't8', name: 'İdare Hukuku', icon: 'fa-sitemap', lecture: `<h4>Bütünlük İlkesi</h4><p><strong>Hiyerarşi:</strong> Aynı kurum içindeki denetim (Bakan -> Vali).</p><p><strong>İdari Vesayet:</strong> Devletin özerk kurumu denetlemesi (Vali -> Belediye Başkanı).</p>` },
-            { id: 't9', name: 'Güncel Bilgiler', icon: 'fa-earth-europe', lecture: '' }
+            { 
+                id: 't1', name: 'Temel Hukuk Kavramları', icon: 'fa-scale-balanced', 
+                cards: [
+                    "Hukuk kurallarını diğerlerinden (din, ahlak, görgü) ayıran en önemli özellik <strong style='color:var(--primary);'>maddi yaptırımlı (devlet güvenceli)</strong> olmasıdır.",
+                    "<strong>Yokluk:</strong> Kurucu unsurların hiç olmamasıdır. Örn: Resmi memur önünde yapılmayan evlilik hukuken hiç doğmamıştır.",
+                    "<strong>Mutlak Butlan:</strong> Kurucu unsurlar var ama emredici hükümlere aykırı. Örn: Amcayla evlenmek, akıl hastasının evlenmesi.",
+                    "<strong>Nispi Butlan:</strong> İrade sakatlığı (Korkutma, aldatma, hata) durumunda işlemin iptal edilebilir olmasıdır.",
+                    "<strong>Tek Taraflı Bağlamazlık (Askıda Geçersizlik):</strong> Reşit olmayan bir çocuğun velisinin izni olmadan sözleşme yapmasıdır.",
+                    "<strong>Hak Ehliyeti:</strong> Sağ ve tam doğmak koşuluyla <strong style='color:var(--warning);'>ana rahmine düşüldüğü an</strong> başlar.",
+                    "<strong>Fiil Ehliyeti Şartları:</strong> 1) Ergin olmak 2) Ayırt etme gücüne sahip olmak 3) Kısıtlı olmamak.",
+                    "<strong>Olağan Evlenme Yaşı:</strong> 17 yaşın doldurulmasıdır. (Yasal temsilci izniyle)<br><br><strong>Olağanüstü Evlenme Yaşı:</strong> 16 yaşın doldurulmasıdır. (Hakim kararıyla)"
+                ] 
+            },
+            { 
+                id: 't2', name: 'Devlet ve Hükümet Sistemleri', icon: 'fa-landmark-dome', 
+                cards: [
+                    "<strong>Üniter Devlet:</strong> Tek yasa, tek anayasa, tek meclis ve tek idarenin olduğu devlet yapısıdır. (Türkiye gibi)",
+                    "<strong>Federal Devlet:</strong> İçişlerinde serbest, dışişlerinde merkeze bağlı eyaletlerden oluşur. İki ayrı anayasa vardır. (ABD, Almanya)",
+                    "<strong>Kuvvetler Ayrılığı:</strong> Yasama (TBMM), Yürütme (Cumhurbaşkanı) ve Yargı (Bağımsız Mahkemeler) erklerinin ayrı organlarda toplanmasıdır.",
+                    "<strong>Başkanlık Sistemi:</strong> Yürütme ve yasamanın <strong style='color:var(--danger);'>sert</strong> ayrılığıdır. Başkan doğrudan halk tarafından seçilir.",
+                    "<strong>Parlamenter Sistem:</strong> Kuvvetlerin <strong style='color:var(--warning);'>yumuşak</strong> ayrılığıdır. Yürütme organı (Bakanlar Kurulu), yasama organının içinden çıkar.",
+                    "<strong>ÖSYM UYARISI:</strong> Türkiye 2017 Anayasa değişikliği ile <em>Cumhurbaşkanlığı Hükümet Sistemine</em> geçmiş ve Başbakanlık makamı tamamen kaldırılmıştır."
+                ] 
+            },
+            { 
+                id: 't3', name: 'Anayasa Tarihi', icon: 'fa-book-atlas', 
+                cards: [
+                    "<strong>1876 Kanun-i Esasi:</strong> Türk tarihinin İLK anayasasıdır. Çift meclislidir (Ayan ve Mebusan).",
+                    "<strong>1921 Anayasası (Teşkilat-ı Esasiye):</strong> Tek <strong style='color:var(--info);'>çerçeve</strong> ve tek <strong style='color:var(--info);'>yumuşak</strong> anayasamızdır. Temel hak ve özgürlüklere yer verilmemiştir.",
+                    "<strong>1924 Anayasası:</strong> 'Devletin dini İslamdır' maddesi 1928'de çıkarılarak laikleşme yolunda ilk adım atılmıştır.",
+                    "<strong>1961 Anayasası:</strong> En demokratik anayasadır. <em>Sosyal Devlet, Hukuk Devleti, Demokratik Devlet</em> kavramları ilk kez bu anayasa ile gelmiştir.",
+                    "<strong>1982 Anayasası:</strong> En kazuistik (detaycı) ve en sert anayasadır. Siyaset yasağı ve tıkanıklıkları giderme amacı taşır."
+                ] 
+            },
+            { 
+                id: 't4', name: 'Temel Hak ve Ödevler', icon: 'fa-person-rays', 
+                cards: [
+                    "<strong>1) Negatif Statü (Koruyucu/Kişi) Hakları:</strong> Devleti bireye karşı sınırlar. Örn: Yaşama hakkı, mülkiyet hakkı, din ve vicdan hürriyeti.",
+                    "<strong>2) Pozitif Statü (İsteme/Sosyal) Hakları:</strong> Bireyin devletten hizmet beklediği haklardır. Örn: Eğitim hakkı, sağlık hakkı, çalışma hakkı.",
+                    "<strong>3) Aktif Statü (Katılma/Siyasi) Hakları:</strong> Sadece vatandaşların devlete katılımını sağlar. Örn: Seçme seçilme, dilekçe hakkı, parti kurma.",
+                    "<strong>Çekirdek Haklar (Sert Haklar):</strong> Savaş, seferberlik ve OHAL'de bile dokunulamayan haklardır. <br><br>1) Yaşama hakkı<br>2) Maddi ve manevi bütünlük<br>3) Din/vicdan hürriyeti zorlanamaz<br>4) Suç ve cezalar geçmişe yürütülemez<br>5) Masumiyet karinesi"
+                ] 
+            },
+            { 
+                id: 't5', name: 'Yasama (TBMM)', icon: 'fa-building-columns', 
+                cards: [
+                    "<strong>Milletvekili Sayısı ve Seçimler:</strong> TBMM 600 vekilden oluşur. Seçimler 5 yılda bir yapılır.",
+                    "<strong>Kanun Teklifi:</strong> Kanun teklif etmeye <strong style='color:var(--danger);'>SADECE Milletvekilleri</strong> yetkilidir. (Cumhurbaşkanı sadece Bütçe Kanununu teklif edebilir).",
+                    "<strong>Toplantı ve Karar Yeter Sayısı:</strong> Toplantı yeter sayısı üye tamsayısının üçte biri olan <strong style='color:var(--primary);'>200</strong>'dür. Karar yeter sayısı toplantıya katılanların salt çoğunluğudur (Ancak bu sayı 151'den az olamaz).",
+                    "<strong>Milletvekilliğinin Düşmesi:</strong> İstifa veya devamsızlık kararlarına karşı 7 gün içinde AYM'ye itiraz edilebilir. AYM 15 gün içinde kesin karar verir.",
+                    "<strong>Erken Seçim:</strong> TBMM üye tamsayısının beşte üçü (360 vekil) oyuyla erken seçim kararı alabilir."
+                ] 
+            },
+            { 
+                id: 't6', name: 'Yürütme (Cumhurbaşkanı)', icon: 'fa-briefcase', 
+                cards: [
+                    "<strong>Cumhurbaşkanı Seçilme Şartları:</strong> 40 yaşını doldurmuş olmak, yükseköğrenim mezunu olmak ve milletvekili seçilme yeterliliğine sahip olmak.",
+                    "<strong>Görev Süresi:</strong> Görev süresi 5 yıldır. Bir kimse en fazla 2 defa seçilebilir (Erken seçim istisnası hariç).",
+                    "<strong>Vekalet:</strong> Cumhurbaşkanlığı makamının boşalması halinde veya hastalık/yurtdışına çıkma gibi geçici ayrılmalarda <strong style='color:var(--info);'>Cumhurbaşkanı Yardımcısı</strong> vekalet eder.",
+                    "<strong>Yönetmelik Çıkarma Yetkisi:</strong> 1) Cumhurbaşkanı<br>2) Bakanlıklar<br>3) Kamu Tüzel Kişileri yönetmelik çıkarabilir.",
+                    "<strong>Olağanüstü Hal (OHAL):</strong> Cumhurbaşkanı yurdu veya bir bölgesini kapsayacak şekilde en fazla <strong style='color:var(--warning);'>6 aylığına</strong> OHAL ilan edebilir. Uzatma yetkisi TBMM'nindir (her defasında 4 ayı geçmemek üzere)."
+                ] 
+            },
+            { 
+                id: 't7', name: 'Yargı (Yüksek Mahkemeler)', icon: 'fa-gavel', 
+                cards: [
+                    "<strong>Yüksek Mahkemeler Nelerdir?</strong><br>1) Anayasa Mahkemesi (AYM)<br>2) Yargıtay<br>3) Danıştay<br>4) Uyuşmazlık Mahkemesi",
+                    "<strong>ÖSYM Tuzağı:</strong> <strong style='color:var(--danger);'>Sayıştay ve YSK</strong> yüksek mahkeme DEĞİLDİR!",
+                    "<strong>Anayasa Mahkemesi (AYM):</strong> 15 üyeden oluşur. Üyeleri 12 yıllığına seçilir. Siyasi partileri kapatma davasına bakar. Yüce Divan sıfatıyla yargılama yapar.",
+                    "<strong>Yargıtay:</strong> Adli yargının en üst derece mahkemesidir. Üyelerini HSK seçer.",
+                    "<strong>Danıştay:</strong> İdari yargının en üst mahkemesidir. Üyelerinin 3/4'ünü HSK, 1/4'ünü Cumhurbaşkanı seçer.",
+                    "<strong>Hakimler ve Savcılar Kurulu (HSK):</strong> 13 üyeden oluşur. <strong style='color:var(--warning);'>Başkanı Adalet Bakanıdır.</strong> (Kendisi bir yüksek mahkeme değildir, idari kuruldur)"
+                ] 
+            },
+            { 
+                id: 't8', name: 'İdare Hukuku', icon: 'fa-sitemap', 
+                cards: [
+                    "<strong>Hiyerarşi:</strong> AYNI kamu tüzel kişiliği içindeki ast-üst ilişkisidir. (Örn: İçişleri Bakanının Valiyi, Valinin Kaymakamı denetlemesi).",
+                    "<strong>İdari Vesayet:</strong> Merkezi yönetimin, yerinden yönetim kuruluşlarını (FARKLI kamu tüzel kişilerini) denetlemesidir. (Örn: Valinin Belediye Başkanını denetlemesi).",
+                    "<strong>Kamulaştırma (İstimlak):</strong> Devletin kamu yararı için ÖZEL MÜLKİYETTEKİ <strong style='color:var(--primary);'>taşınmazlara</strong> (arsa, tarla) bedelini ödeyerek zorla el koymasıdır.",
+                    "<strong>İstimval:</strong> Olağanüstü durumlarda devletin özel mülkiyetteki <strong style='color:var(--danger);'>taşınırlara</strong> el atmasıdır.",
+                    "<strong>Memur Disiplin Cezaları:</strong> Uyarma, Kınama, Aylıktan Kesme, Kademe İlerlemesinin Durdurulması, Devlet Memurluğundan Çıkarma. <br><em>(Not: Sürgün, açığa alma, görevden uzaklaştırma disiplin cezası DEĞİLDİR.)</em>"
+                ] 
+            },
+            { 
+                id: 't9', name: 'Güncel Bilgiler', icon: 'fa-earth-europe', 
+                cards: [
+                    "2024 Yaz Olimpiyat Oyunları <strong>Fransa'nın başkenti Paris'te</strong> düzenlenmiştir.",
+                    "NATO'ya 2024 yılında katılan son üye (32. Üye) <strong>İsveç'tir</strong>.",
+                    "Avrupa Birliği (AB) Dönem Başkanlığını 2024'ün ikinci yarısında <strong>Macaristan</strong> devralmıştır.",
+                    "Birleşmiş Milletler (BM) Genel Sekreteri <strong>Antonio Guterres'tir</strong>.",
+                    "G7 Dönem Başkanlığını 2024 yılında <strong>İtalya</strong> yürütmektedir."
+                ]
+            }
         ];
 
         const questionsDB = [
@@ -512,13 +609,54 @@
             });
         }
         let currentTopic = '';
+        let currentCardIndex = 0;
+        
         function openTopic(tid) {
             document.getElementById('m2-list').style.display = 'none'; document.getElementById('m2-station').style.display = 'block';
             let t = topics.find(x=>x.id===tid); currentTopic = tid;
             document.getElementById('station-title').innerText = t.name;
-            document.getElementById('content-lecture').innerHTML = t.lecture;
+            
+            // Init Flashcards
+            currentCardIndex = 0;
+            renderCard();
+            
             switchStationTab('lecture');
         }
+        
+        function renderCard() {
+            let t = topics.find(x=>x.id===currentTopic);
+            if(!t || !t.cards) return;
+            const cardEl = document.getElementById('flashcard-el');
+            
+            // Simple flip animation
+            cardEl.style.transform = "rotateX(90deg)";
+            cardEl.style.opacity = "0";
+            setTimeout(() => {
+                cardEl.innerHTML = t.cards[currentCardIndex];
+                cardEl.style.transform = "rotateX(0deg)";
+                cardEl.style.opacity = "1";
+                document.getElementById('flashcard-progress').innerText = (currentCardIndex + 1) + " / " + t.cards.length;
+            }, 200);
+        }
+        
+        function nextCard() {
+            let t = topics.find(x=>x.id===currentTopic);
+            if(currentCardIndex < t.cards.length - 1) {
+                currentCardIndex++;
+                renderCard();
+            } else {
+                alert("Tüm bilgi kartlarını bitirdiniz! Şimdi test çözme zamanı.");
+                switchStationTab('quiz');
+            }
+        }
+        
+        function prevCard() {
+            if(currentCardIndex > 0) {
+                currentCardIndex--;
+                renderCard();
+            }
+        }
+
         function switchStationTab(tab) {
             document.getElementById('tab-lecture').style.color = tab==='lecture' ? 'var(--primary)' : 'var(--text-muted)';
             document.getElementById('tab-lecture').style.borderBottomColor = tab==='lecture' ? 'var(--primary)' : 'transparent';
