@@ -636,7 +636,7 @@
             cardEl.style.transform = "rotateX(90deg)";
             cardEl.style.opacity = "0";
             setTimeout(() => {
-                cardEl.innerHTML = t.cards[currentCardIndex];
+                cardEl.innerHTML = "<div style='width: 100%; word-wrap: break-word; line-height: 1.6;'>" + t.cards[currentCardIndex] + "</div>";
                 cardEl.style.transform = "rotateX(0deg)";
                 cardEl.style.opacity = "1";
                 document.getElementById('flashcard-progress').innerText = (currentCardIndex + 1) + " / " + t.cards.length;
