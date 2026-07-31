@@ -563,7 +563,20 @@
             document.getElementById(currentContainer).classList.remove('survivor-active');
             
             isExamMode = true; isSurvivorMode = isSurvivor; examScore = 0;
-            currentQuizQueue = questionsDB.sort(()=>0.5-Math.random()).slice(0, 5); // Shortened for demo stability
+            
+            let qPool = questionsDB;
+            if (yearFilter) {
+                qPool = questionsDB.filter(q => q.isCikmis && q.year == yearFilter);
+                if(qPool.length === 0) qPool = questionsDB.filter(q => q.isCikmis).slice(0, 15); // Fallback if year has no questions
+            } else if (isSurvivorMode) {
+                qPool = questionsDB.filter(q => q.isCikmis);
+            }
+            
+            currentQuizQueue = qPool.sort(()=>0.5-Math.random());
+            if (modId === 'm4') {
+                currentQuizQueue = currentQuizQueue.slice(0, 15); // 15 questions for Nokta Atışı
+            }
+            
             currentQIndex = 0;
 
             if(isSurvivorMode) {
