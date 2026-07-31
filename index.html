@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KPSS Vatandaşlık Pro - Eğitim Kampı</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #10b981;
+            --dark-bg: #0f172a;
+            --sidebar-bg: #1e293b;
+            --card-bg: #1e293b;
+            --card-hover: #334155;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --border: rgba(255, 255, 255, 0.08);
+            --sidebar-width: 280px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-header { padding: 2rem 1.5rem; border-bottom: 1px solid var(--border); }
+        .logo { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #818cf8, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 0.5rem; }
+        
+        .user-profile { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; }
+        .avatar { width: 50px; height: 50px; border-radius: 12px; background: linear-gradient(135deg, var(--primary), var(--purple)); display: flex; justify-content: center; align-items: center; font-size: 1.5rem; color: white; font-weight: bold; }
+        .user-info h3 { font-size: 1.1rem; margin-bottom: 0.2rem; }
+        .user-rank { font-size: 0.85rem; color: #fcd34d; font-weight: 600; display: flex; align-items: center; gap: 0.3rem; }
+        
+        .nav-menu { padding: 1.5rem 1rem; flex: 1; overflow-y: auto; }
+        .nav-group { margin-bottom: 1.5rem; }
+        .nav-group-title { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; font-weight: 700; margin-bottom: 0.5rem; padding-left: 0.5rem; }
+        .nav-item { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; color: var(--text-muted); text-decoration: none; border-radius: 8px; transition: all 0.2s; cursor: pointer; font-weight: 500; }
+        .nav-item:hover { background: var(--card-hover); color: var(--text-light); }
+        .nav-item.active { background: rgba(79, 70, 229, 0.15); color: #818cf8; border-left: 4px solid var(--primary); }
+        .nav-item i { font-size: 1.1rem; width: 24px; text-align: center; }
+        
+        .streak-box { margin: 1rem; padding: 1rem; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; display: flex; align-items: center; gap: 1rem; }
+        .streak-fire { font-size: 2rem; color: #fbbf24; animation: pulseFire 1.5s infinite alternate; }
+        @keyframes pulseFire { 0% { transform: scale(1); } 100% { transform: scale(1.1); text-shadow: 0 0 10px rgba(251, 191, 36, 0.8); } }
+        
+        /* --- MAIN CONTENT --- */
+        .main-wrapper { flex: 1; margin-left: var(--sidebar-width); display: flex; flex-direction: column; min-height: 100vh; background: var(--dark-bg); }
+        .top-bar { display: none; padding: 1rem; background: var(--sidebar-bg); border-bottom: 1px solid var(--border); align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 999; }
+        .menu-toggle { background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+        
+        .content-area { padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+        .module-content { display: none; animation: fadeIn 0.4s ease; }
+        .module-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* --- CARDS & GRIDS --- */
+        .glass-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transition: transform 0.2s; position: relative; }
+        .clickable-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2); border-color: rgba(79, 70, 229, 0.4); cursor: pointer; background: var(--card-hover); }
+        
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        
+        .module-header { margin-bottom: 2.5rem; }
+        .module-header h2 { font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .module-header p { color: var(--text-muted); font-size: 1.1rem; }
+
+        /* --- CHART STYLES (Simple CSS Chart) --- */
+        .chart-container { height: 250px; display: flex; align-items: flex-end; gap: 10px; padding-top: 2rem; border-bottom: 2px solid var(--border); margin-top: 1rem; position: relative; }
+        .chart-bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; group: hover; position: relative; }
+        .chart-bar { width: 100%; background: linear-gradient(to top, var(--primary), #818cf8); border-radius: 6px 6px 0 0; transition: height 1s ease; min-height: 5px; position: relative; }
+        .chart-label { margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-muted); }
+        .chart-tooltip { position: absolute; top: -30px; background: var(--dark-bg); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold; opacity: 0; transition: opacity 0.2s; pointer-events: none; border: 1px solid var(--border); }
+        .chart-bar-wrapper:hover .chart-tooltip { opacity: 1; }
+
+        /* --- EXAM & QUESTION STYLES --- */
+        .question-box { margin-bottom: 2rem; position: relative; }
+        .question-text { font-size: 1.2rem; font-weight: 500; margin-bottom: 1.5rem; line-height: 1.7; }
+        .options { display: flex; flex-direction: column; gap: 0.75rem; }
+        .option { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 1rem 1.2rem; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 1rem; font-size: 1.05rem; transition: all 0.2s ease; }
+        .option:hover { background: rgba(255,255,255,0.08); border-color: var(--primary); }
+        .option.selected { background: rgba(79, 70, 229, 0.15); border-color: var(--primary); }
+        .option.correct { background: rgba(34, 197, 94, 0.15); border-color: var(--success); color: #4ade80; }
+        .option.wrong { background: rgba(239, 68, 68, 0.15); border-color: var(--danger); color: #f87171; }
+        .option-letter { background: rgba(0,0,0,0.3); width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: 600; font-size: 0.95rem; flex-shrink: 0; border: 1px solid var(--border); }
+        .option:hover .option-letter, .option.selected .option-letter { background: var(--primary); border-color: var(--primary); color: white; }
+        
+        .feedback-msg { margin-top: 1.5rem; padding: 1.5rem; border-radius: 12px; display: none; line-height: 1.6; }
+        .feedback-msg.correct { display: block; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34,197,94,0.3); }
+        .feedback-msg.wrong { display: block; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239,68,68,0.3); }
+
+        .btn { background: var(--primary); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; font-family: 'Inter', sans-serif;}
+        .btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        
+        /* XP Bar */
+        .xp-bar-container { width: 100%; height: 8px; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden; margin-top: 0.5rem; }
+        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); width: 0%; transition: width 0.5s ease; }
+
+        /* Mobile Adjustments */
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-wrapper { margin-left: 0; }
+            .top-bar { display: flex; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+
+        /* POMODORO */
+        .pomodoro-widget { position: fixed; bottom: 20px; right: 20px; background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); border: 1px solid var(--danger); border-radius: 12px; padding: 1rem; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 150px; }
+        .pomo-time { font-size: 1.8rem; font-weight: 800; color: var(--danger); font-variant-numeric: tabular-nums; }
+        
+        /* SURVIVOR BAR */
+        .survivor-bar-container { width: 100%; height: 6px; background: var(--dark-bg); border-radius: 3px; margin-bottom: 1rem; overflow: hidden; display: none; }
+        .survivor-bar-fill { height: 100%; background: var(--danger); width: 100%; transition: width 1s linear; }
+        .survivor-active .survivor-bar-container { display: block; }
+        
+        .station-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 2rem; gap: 1rem; overflow-x: auto; }
+        .station-tab { padding: 1rem 1.5rem; cursor: pointer; color: var(--text-muted); font-weight: 600; border-bottom: 3px solid transparent; white-space: nowrap; }
+        .station-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .station-content { display: none; } .station-content.active { display: block; animation: fadeIn 0.3s; }
+        
+        .lecture-content h4 { color: var(--secondary); font-size: 1.3rem; margin-top: 1.5rem; margin-bottom: 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+        .lecture-content p { margin-bottom: 1rem; line-height: 1.7; color: var(--text-muted); }
+        .lecture-content ul { margin-left: 1.5rem; margin-bottom: 1rem; line-height: 1.7; color: var(--text-muted); }
+        .lecture-content .alert-box { background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warning); padding: 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0; color: #fcd34d; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo"><i class="fa-solid fa-graduation-cap"></i> KPSS Pro</div>
+        </div>
+        
+        <div class="user-profile">
+            <div class="avatar"><i class="fa-solid fa-user-graduate"></i></div>
+            <div class="user-info">
+                <h3>Hedef: 15'te 15</h3>
+                <div class="user-rank" id="ui-rank-name"><i class="fa-solid fa-medal"></i> Aday Memur</div>
+                <div class="xp-bar-container"><div class="xp-bar-fill" id="ui-xp-bar"></div></div>
+                <div style="font-size:0.7rem; color:var(--text-muted); margin-top:0.3rem;" id="ui-xp-text">0 XP</div>
+            </div>
+        </div>
+        
+        <div class="streak-box">
+            <div class="streak-fire"><i class="fa-solid fa-fire"></i></div>
+            <div>
+                <div style="font-weight:700; font-size:1.1rem;" id="ui-streak-days">0 Gün</div>
+                <div style="font-size:0.8rem; color:var(--text-muted);">Çalışma Serisi</div>
+            </div>
+        </div>
+
+        <nav class="nav-menu">
+            <div class="nav-group">
+                <div class="nav-group-title">Analiz & İstatistik</div>
+                <a class="nav-item active" onclick="showModule('home')"><i class="fa-solid fa-chart-pie"></i> Kontrol Paneli</a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-group-title">Eğitim & Öğrenim</div>
+                <a class="nav-item" onclick="showModule('m2')"><i class="fa-solid fa-book-open-reader"></i> Detaylı Konu Anlatımı</a>
+                <a class="nav-item" onclick="showModule('m3')"><i class="fa-solid fa-table-list"></i> Kritik Tablolar</a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-group-title">Sınav Merkezi</div>
+                <a class="nav-item" onclick="showModule('m4')"><i class="fa-solid fa-robot" style="color:#c4b5fd;"></i> 20 Nokta Atışı Deneme</a>
+                <a class="nav-item" onclick="showModule('m1')"><i class="fa-solid fa-star" style="color:#fbbf24;"></i> Çıkmışlar & Survivor</a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-group-title">Gelişim</div>
+                <a class="nav-item" onclick="showModule('m6')" style="color:#f87171;"><i class="fa-solid fa-book-skull"></i> Hata Defteri</a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- MOBILE TOP BAR -->
+    <div class="top-bar">
+        <div class="logo" style="font-size: 1.2rem;"><i class="fa-solid fa-graduation-cap"></i> KPSS Pro</div>
+        <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fa-solid fa-bars"></i></button>
+    </div>
+
+    <!-- POMODORO WIDGET -->
+    <div class="pomodoro-widget" id="pomo-widget">
+        <div class="pomo-status" id="pomo-status"><i class="fa-solid fa-brain"></i> Odaklan</div>
+        <div class="pomo-time" id="pomo-time">25:00</div>
+        <div style="display:flex; gap:10px; margin-top:5px;">
+            <button onclick="togglePomodoro()" id="pomo-play-btn" style="background:none; border:none; color:white; cursor:pointer;"><i class="fa-solid fa-play"></i></button>
+            <button onclick="resetPomodoro()" style="background:none; border:none; color:white; cursor:pointer;"><i class="fa-solid fa-rotate-right"></i></button>
+        </div>
+    </div>
+
+    <!-- EXAM TIMER -->
+    <div id="exam-timer" class="timer-box" style="display:none;">15:00</div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-wrapper">
+        <div class="content-area">
+            
+            <!-- HOME: Dashboard & Charts -->
+            <div id="home" class="module-content active">
+                <div class="module-header">
+                    <h2>Kontrol Paneli</h2>
+                    <p>Genel durumunuz, güncel rütbeniz ve deneme net grafiğiniz.</p>
+                </div>
+                
+                <div class="grid-3" style="margin-bottom: 2rem;">
+                    <div class="glass-card" style="display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                        <h3 style="color:var(--text-muted); margin-bottom:1rem;">Doğruluk Oranı</h3>
+                        <div style="font-size: 3rem; font-weight:800; color:var(--success);" id="dash-accuracy">%0</div>
+                        <p style="color:var(--text-muted); font-size:0.9rem; margin-top:0.5rem;">Toplam <span id="dash-total-q">0</span> Soru Çözüldü</p>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3 style="color:var(--text-muted); margin-bottom:1rem;">Konu Başarısı</h3>
+                        <div style="margin-bottom: 0.8rem;"><div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.3rem;"><span>Temel Hukuk</span><span id="dash-prog-1">0%</span></div><div class="xp-bar-container"><div class="xp-bar-fill" style="background:var(--primary);" id="dash-bar-1"></div></div></div>
+                        <div style="margin-bottom: 0.8rem;"><div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.3rem;"><span>İdare Hukuku</span><span id="dash-prog-2">0%</span></div><div class="xp-bar-container"><div class="xp-bar-fill" style="background:var(--info);" id="dash-bar-2"></div></div></div>
+                        <div style="margin-bottom: 0.8rem;"><div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.3rem;"><span>Yasama-Yürütme</span><span id="dash-prog-3">0%</span></div><div class="xp-bar-container"><div class="xp-bar-fill" style="background:var(--purple);" id="dash-bar-3"></div></div></div>
+                    </div>
+
+                    <div class="glass-card" style="background: linear-gradient(145deg, rgba(239, 68, 68, 0.1), rgba(15, 23, 42, 0)); border-color: rgba(239, 68, 68, 0.3);">
+                        <h3 style="color:var(--danger); margin-bottom:1rem;"><i class="fa-solid fa-triangle-exclamation"></i> Yapay Zeka Uyarıları</h3>
+                        <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.6;" id="dash-ai-warning">Henüz yeterli veri yok. Bol bol deneme ve konu testi çözmeye devam edin.</p>
+                        <button class="btn btn-outline" style="width:100%; margin-top:1.5rem; border-color:var(--danger); color:var(--danger);" onclick="showModule('m6')">Hata Defterine Git</button>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <h3>Son Deneme Netleri (Gelişim Grafiği)</h3>
+                    <p style="font-size:0.85rem; color:var(--text-muted);">Son çözdüğünüz 10 denemenin 15 soru üzerinden doğru sayıları.</p>
+                    <div class="chart-container" id="dash-chart">
+                        <!-- Chart generated by JS -->
+                        <div style="width:100%; text-align:center; color:var(--text-muted);">Grafik için deneme çözmeniz gerekiyor.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- M2: DETAYLI KONU ANLATIMI (Eğitim) -->
+            <div id="m2" class="module-content">
+                <div class="module-header">
+                    <h2>Eğitim Kampı</h2>
+                    <p>8 Ana konu için detaylı ders notları, ÖSYM uyarıları ve testler.</p>
+                </div>
+                <div id="m2-list" class="grid-3"></div>
+                
+                <div id="m2-station" style="display: none;">
+                    <button class="btn btn-outline" style="margin-bottom: 1.5rem;" onclick="document.getElementById('m2-station').style.display='none'; document.getElementById('m2-list').style.display='grid';"><i class="fa-solid fa-arrow-left"></i> Konulara Dön</button>
+                    <div class="glass-card">
+                        <h2 id="station-title" style="margin-bottom: 1.5rem; color:var(--primary);">Konu Başlığı</h2>
+                        <div class="station-tabs">
+                            <div class="station-tab active" onclick="switchStationTab('lecture')" id="tab-lecture"><i class="fa-solid fa-book-open"></i> Detaylı Konu Anlatımı</div>
+                            <div class="station-tab" onclick="switchStationTab('quiz')" id="tab-quiz"><i class="fa-solid fa-pen-nib"></i> Konu Testi Çöz</div>
+                        </div>
+                        <div id="content-lecture" class="station-content active lecture-content"><div class="summary-box" id="station-lecture-html"></div></div>
+                        <div id="content-quiz" class="station-content"><div id="m2-quiz-container"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- M4: 20 NOKTA ATIŞI DENEME -->
+            <div id="m4" class="module-content">
+                <div class="module-header">
+                    <h2>20 Nokta Atışı Deneme <span style="font-size:0.8rem; background:var(--purple); color:white; padding:0.2rem 0.5rem; border-radius:4px;">YAPAY ZEKA</span></h2>
+                    <p>Sınavda çıkması en muhtemel sorularla hazırlanmış tam 20 adet 15 soruluk (9 Vat. + 6 Güncel) efsanevi deneme paketi.</p>
+                </div>
+                <div id="m4-list" class="grid-4"></div>
+                <div id="m4-quiz" style="display: none;"><div class="glass-card" id="m4-container"></div></div>
+                <div id="m4-result" style="display: none;" class="glass-card"></div>
+            </div>
+
+            <!-- M1: ÇIKMIŞLAR & SURVIVOR -->
+            <div id="m1" class="module-content">
+                <div class="module-header">
+                    <h2>Çıkmış Yıllar & Survivor Modu</h2>
+                    <p>ÖSYM'nin geçmiş yıllardaki gerçek denemeleri ve hızınızı sınayacağınız adrenalin modu.</p>
+                </div>
+                
+                <div class="grid-2" style="margin-bottom: 3rem;">
+                    <div class="glass-card clickable-card" style="text-align:center; border: 2px solid var(--danger); background: rgba(239, 68, 68, 0.05);" onclick="startExam('m1', 'Survivor Modu', null, true)">
+                        <i class="fa-solid fa-skull-crossbones" style="font-size: 3.5rem; color: var(--danger); margin-bottom: 1rem; animation: pulse 1s infinite;"></i>
+                        <h3 style="color:var(--danger); font-size:1.5rem;">Hayatta Kalma (Survivor)</h3>
+                        <p style="color:var(--text-muted); font-size:1rem; margin-top:0.5rem;">Soru başına 20 saniye. Yavaşlayan elenir!</p>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom:1.5rem; color:var(--text-light);">Geçmiş Yıl Sınavları</h3>
+                <div id="m1-list" class="grid-4"></div>
+                
+                <div id="m1-quiz" style="display: none;"><div class="glass-card" id="m1-container"></div></div>
+                <div id="m1-result" style="display: none;" class="glass-card"></div>
+            </div>
+
+            <!-- M3: TABLOLAR -->
+            <div id="m3" class="module-content">
+                <div class="module-header"><h2>Kritik Tablolar ve Şifreler</h2><p>Hata yapmanızı engelleyecek kritik karşılaştırmalar.</p></div>
+                <div class="grid-2">
+                    <div class="glass-card">
+                        <h3 style="color: #34d399; margin-bottom: 1rem;"><i class="fa-solid fa-scale-unbalanced"></i> 2017 Anayasa Değişiklikleri</h3>
+                        <div class="lecture-content">
+                            <p>Eski kaynaklardan çalışanların en çok düştüğü hatalar şunlardır:</p>
+                            <ul>
+                                <li>Milletvekili sayısı 550'den <strong>600'e</strong> çıktı.</li>
+                                <li>Seçilme yaşı 25'ten <strong>18'e</strong> indi.</li>
+                                <li>Başbakanlık ve Bakanlar Kurulu tamamen <strong>kaldırıldı</strong>.</li>
+                                <li>Tüzük ve KHK <strong>kaldırıldı</strong>. (Yerine CB Kararnamesi geldi)</li>
+                                <li>Askeri Yargı tamamen <strong>kaldırıldı</strong> (Disiplin mahkemeleri hariç).</li>
+                                <li>Hakimler ve Savcılar Yüksek Kurulundan "Yüksek" kelimesi atıldı (HSK oldu), üye sayısı 22'den <strong>13'e</strong> düştü.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="glass-card">
+                        <h3 style="color: #fbbf24; margin-bottom: 1rem;"><i class="fa-solid fa-stopwatch"></i> Kritik Süreler Tablosu</h3>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 1rem; font-size:0.95rem;">
+                            <tr><th style="padding: 1rem; text-align: left; background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid var(--border);">İşlem</th><th style="padding: 1rem; text-align: left; background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid var(--border);">Süre</th></tr>
+                            <tr><td style="padding: 1rem; border-bottom: 1px solid var(--border);">Kanunların CB tarafından yayımlanması</td><td style="padding: 1rem; border-bottom: 1px solid var(--border);">15 Gün</td></tr>
+                            <tr><td style="padding: 1rem; border-bottom: 1px solid var(--border);">Anayasa Mahkemesine İptal Davası açma</td><td style="padding: 1rem; border-bottom: 1px solid var(--border);">60 Gün</td></tr>
+                            <tr><td style="padding: 1rem; border-bottom: 1px solid var(--border);">Olağanüstü Hal (OHAL) ilan süresi</td><td style="padding: 1rem; border-bottom: 1px solid var(--border);">En fazla 6 Ay</td></tr>
+                            <tr><td style="padding: 1rem; border-bottom: 1px solid var(--border);">TBMM'nin Tatil Süresi</td><td style="padding: 1rem; border-bottom: 1px solid var(--border);">En çok 3 Ay</td></tr>
+                            <tr><td style="padding: 1rem; border-bottom: 1px solid var(--border);">Siyasi Partilerin kapatılması davası açma</td><td style="padding: 1rem; border-bottom: 1px solid var(--border);">Yargıtay C.Başsavcısı</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- M6: YANLIŞLARIM -->
+            <div id="m6" class="module-content">
+                <div class="module-header"><h2><i class="fa-solid fa-book-skull"></i> Hata Defteri</h2><p>Yanlış yaptığınız soruların çeldirici analizleri.</p></div>
+                <div id="mistakes-empty" style="text-align: center; padding: 4rem 0;"><h3>Tebrikler! Kayıtlı yanlışınız yok.</h3></div>
+                <div id="mistakes-list"></div>
+            </div>
+            
+        </div>
+    </main>
+
+    <script>
+        /* --- DB & DATA LAYER --- */
+        const topics = [
+            { 
+                id: 't1', name: 'Temel Hukuk Kavramları', icon: 'fa-scale-balanced', 
+                lecture: `
+                    <h4>1. Sosyal Hayatı Düzenleyen Kurallar</h4>
+                    <p>Din, ahlak, görgü ve hukuk kurallarıdır. Hukuk kurallarını diğerlerinden ayıran tek özellik <strong>maddi yaptırımlı (devlet güvenceli)</strong> olmasıdır.</p>
+                    <h4>2. Hukukun Yaptırımları</h4>
+                    <ul>
+                        <li><b>Ceza:</b> Suç işleyene uygulanır.</li>
+                        <li><b>Cebri İcra:</b> Yükümlülüğünü yerine getirmeyenin zorla yerine getirtilmesidir (Borç vb).</li>
+                        <li><b>Tazminat:</b> Verilen maddi/manevi zararın ödetilmesidir.</li>
+                        <li><b>Hükümsüzlük:</b> Hukuki işlemin geçersiz olmasıdır. Kendi içinde 3'e ayrılır: Mutlak Butlan (Kurucu unsurlar var ama kanuna aykırı, örn: amcayla evlenmek), Yokluk (Kurucu unsur eksik, örn: resmi memur önünde yapılmayan evlilik), Tek taraflı bağlamazlık.</li>
+                        <li><b>İptal:</b> İdarenin yaptığı hukuka aykırı işlemin YARGI tarafından kaldırılmasıdır.</li>
+                    </ul>
+                    <div class="alert-box"><strong>ÖSYM Uyarı:</strong> "Dışlama, ayıplama, günah" gibi kavramlar hukukun değil, din veya ahlak kurallarının manevi yaptırımlarıdır. Hukukta yer almaz!</div>
+                    <h4>3. Hak ve Fiil Ehliyeti</h4>
+                    <p><strong>Hak Ehliyeti:</strong> Pasiftir. Hak sahibi olabilmedir. Tam ve sağ doğmak şartıyla <strong>ana rahmine düştüğü an</strong> başlar.</p>
+                    <p><strong>Fiil Ehliyeti:</strong> Aktiftir. Kendi işlemleriyle hak edinebilmedir. Şartları: 1. Ergin olmak (18 yaş), 2. Ayırt etme gücüne sahip olmak, 3. Kısıtlı olmamak.</p>
+                `
+            },
+            { 
+                id: 't2', name: 'Anayasal Kavramlar ve Devlet', icon: 'fa-landmark-dome', 
+                lecture: `
+                    <h4>1. Devlet Şekilleri</h4>
+                    <ul>
+                        <li><b>Üniter Devlet:</b> İktidarın tek bir merkezde toplandığı, tek yasama, tek yürütme, tek anayasa olan devlettir. Örn: Türkiye, Fransa. İdare bütünlük içindedir.</li>
+                        <li><b>Federal Devlet:</b> İki yapılı devlettir. Eyaletlerin (federe) kendi anayasaları vardır ancak dış işlerinde üst (federal) devlete bağlıdırlar. Örn: ABD, Almanya.</li>
+                    </ul>
+                    <h4>2. Hükümet Sistemleri</h4>
+                    <ul>
+                        <li><b>Meclis Hükümeti Sistemi:</b> Yasama ve yürütme güçleri Mecliste birleşir. Bakanlar tek tek meclis tarafından seçilir. Türkiye'de 1921 Anayasasında uygulanmıştır.</li>
+                        <li><b>Parlamenter Sistem:</b> Kuvvetlerin yumuşak ayrılığıdır. Yürütme yasamadan çıkar. Yürütme organı iki başlıdır (Cumhurbaşkanı ve Bakanlar Kurulu). Türkiye'de 2017'ye kadar uygulanmıştır.</li>
+                        <li><b>Başkanlık Sistemi:</b> Kuvvetlerin sert ayrılığıdır. Yürütme tek başlıdır (Başkan). Başkan halk tarafından seçilir, meclise karşı sorumlu değildir.</li>
+                    </ul>
+                    <div class="alert-box"><strong>ÖSYM Uyarı:</strong> 2017 değişikliği ile Türkiye "Cumhurbaşkanlığı Hükümet Sistemi"ne (kendine özgü bir başkanlık modeli) geçmiştir. Başbakanlık tamamen kaldırılmıştır.</div>
+                `
+            },
+            { 
+                id: 't3', name: 'Türk Anayasa Tarihi', icon: 'fa-book-atlas', 
+                lecture: `
+                    <h4>Osmanlı'dan Cumhuriyete Anayasal Gelişmeler</h4>
+                    <ul>
+                        <li><b>Sened-i İttifak (1808):</b> Padişah (II. Mahmut) ile Ayanlar arasında imzalandı. Padişahın yetkileri ilk kez sınırlandırıldı. Bu bir anayasa DEĞİL, anayasal belgedir.</li>
+                        <li><b>Tanzimat Fermanı (1839):</b> Padişah ilk kez kanun gücünün üstünlüğünü kabul etmiştir.</li>
+                        <li><b>Kanun-i Esasi (1876):</b> Türk tarihinin İLK ve TEK anayasasıdır. Meşrutiyet ilan edilmiştir. Çift meclislidir (Ayan ve Mebusan).</li>
+                        <li><b>1921 Anayasası (Teşkilat-ı Esasiye):</b> Savaş dönemi anayasasıdır. Sadece 23 maddedir. Türk tarihinin tek "Çerçeve" (kısa) ve tek "Yumuşak" (değiştirilmesi kolay) anayasasıdır. Güçler birliği vardır. Temel haklara yer VERMEMİŞTİR.</li>
+                        <li><b>1924, 1961, 1982 Anayasaları:</b> Bu üç anayasa da "Sert" ve "Kazuistik" (çok detaycı) anayasalardır. 1982 Anayasası içlerinde en sert ve en kazuistik olanıdır.</li>
+                    </ul>
+                    <div class="alert-box"><strong>ÖSYM Uyarı:</strong> Sosyal Devlet ilkesi, Hukuk Devleti ilkesi ve İnsan Haklarına "Dayalı" devlet ilkesi hayatımıza ilk kez <strong>1961 Anayasası</strong> ile girmiştir.</div>
+                `
+            },
+            { 
+                id: 't4', name: 'Temel Hak ve Ödevler', icon: 'fa-person-rays', 
+                lecture: `
+                    <h4>Jellinek'in Hak Sınıflandırması</h4>
+                    <p>Anayasamız temel hakları 3 bölüme ayırır:</p>
+                    <ul>
+                        <li><b>Kişi Hakları (Negatif Statü - Koruyucu Haklar):</b> Devletin müdahale edemeyeceği özel alandır. <br><i>Örnek:</i> Yaşama hakkı, din ve vicdan hürriyeti, mülkiyet hakkı, dernek kurma hürriyeti, özel hayatın gizliliği.</li>
+                        <li><b>Sosyal ve Ekonomik Haklar (Pozitif Statü - İsteme Hakları):</b> Devletin sosyal imkanlarına göre vatandaşına sağlamak zorunda olduğu haklardır.<br><i>Örnek:</i> Eğitim hakkı, sağlık hakkı, çalışma hakkı, sendika kurma hakkı, sosyal güvenlik hakkı.</li>
+                        <li><b>Siyasi Haklar (Aktif Statü - Katılma Hakları):</b> Sadece VATANDAŞLARIN devlete katılımını sağlayan haklardır.<br><i>Örnek:</i> Seçme ve seçilme hakkı, siyasi parti kurma hakkı, dilekçe hakkı, kamu hizmetine girme, vatan hizmeti, vergi ödevi.</li>
+                    </ul>
+                    <div class="alert-box"><strong>ÖSYM Uyarı:</strong> Seçme yaşı 18'dir. Askere alınan er ve erbaşlar ile askeri öğrenciler SEÇMEN OLAMAZ (oy kullanamazlar). Memurlar ise parti üyesi olamazlar.</div>
+                `
+            },
+            { 
+                id: 't5', name: 'Yasama (TBMM)', icon: 'fa-building-columns', 
+                lecture: `
+                    <h4>1. TBMM'nin Yapısı</h4>
+                    <p>TBMM <strong>600</strong> milletvekilinden oluşur. Seçimler <strong>5 yılda bir</strong>, Cumhurbaşkanlığı seçimleri ile aynı gün yapılır.</p>
+                    <h4>2. Toplantı ve Karar Yeter Sayısı</h4>
+                    <ul>
+                        <li><b>Toplantı Yeter Sayısı:</b> Meclisin toplanabilmesi için üye tamsayısının 1/3'ü yani en az <strong>200 milletvekili</strong> olmalıdır.</li>
+                        <li><b>Karar Yeter Sayısı:</b> Kural olarak toplantıya katılanların salt çoğunluğudur. Ancak bu sayı hiçbir şartta <strong>151'den az olamaz.</strong></li>
+                    </ul>
+                    <h4>3. TBMM'nin Görevleri</h4>
+                    <ul>
+                        <li>Kanun koymak, değiştirmek ve kaldırmak. (Kanun TEKLİF etmeye sadece Milletvekilleri yetkilidir).</li>
+                        <li>Genel ve Özel AF ilan etmek (Üye tamsayısının 3/5'i olan 360 vekil kararı ile).</li>
+                        <li>Para basılmasına karar vermek.</li>
+                        <li>Savaş ilanına karar vermek.</li>
+                    </ul>
+                    <div class="alert-box"><strong>ÖSYM Uyarı:</strong> TBMM bütçe kanununu kabul eder, ancak bütçe kanunu teklifini CUMHURBAŞKANI sunar. Cumhurbaşkanının veto edemediği TEK kanun da yine Bütçe Kanunudur!</div>
+                `
+            },
+            { 
+                id: 't6', name: 'Yürütme (Cumhurbaşkanı)', icon: 'fa-briefcase', 
+                lecture: `
+                    <h4>1. Cumhurbaşkanı Adaylık Şartları</h4>
+                    <p>40 yaşını doldurmuş, yükseköğrenim (lisans) mezunu, milletvekili seçilme yeterliliğine sahip Türk vatandaşı olmalıdır. (Milletvekili olması şart değildir).</p>
+                    <p><strong>Görev Süresi:</strong> 5 yıldır. Bir kişi en fazla 2 kez Cumhurbaşkanı seçilebilir. (Erken seçim kararı alınırsa 3. kez aday olabilir).</p>
+                    <h4>2. Görev ve Yetkileri</h4>
+                    <ul>
+                        <li>Türk Silahlı Kuvvetlerinin Başkomutanlığını temsil etmek. (Genelkurmay Başkanı CB'ye bağlıdır).</li>
+                        <li>Olağanüstü Hal (OHAL) ilan etmek (En fazla 6 ay için).</li>
+                        <li>Kanunları yayımlamak veya tekrar görüşülmek üzere veto etmek (15 gün içinde).</li>
+                        <li>Bakanları ve CB Yardımcılarını atamak ve görevden almak.</li>
+                        <li>Cumhurbaşkanlığı Kararnamesi ve Yönetmelik çıkarmak.</li>
+                    </ul>
+                    <div class="alert-box"><strong>ÖSYM Uyarı:</strong> 2017 Değişikliği ile Başbakanlık makamı tamamen kaldırılmış, tüm yürütme yetkisi tek başına Cumhurbaşkanına verilmiştir. Cumhurbaşkanı makamı boşalırsa yerine CB YARDIMCISI vekalet eder. (Eskiden TBMM başkanıydı).</div>
+                `
+            },
+            { 
+                id: 't7', name: 'Yargı (Yüksek Mahkemeler)', icon: 'fa-gavel', 
+                lecture: `
+                    <h4>1. Yüksek Mahkemeler Nelerdir?</h4>
+                    <p>Anayasamıza göre 4 adet yüksek mahkeme vardır:</p>
+                    <ul>
+                        <li><b>Anayasa Mahkemesi (AYM):</b> 15 üyeden oluşur. Kanunların anayasaya uygunluğunu denetler. Siyasi parti kapatma davalarına bakar. Cumhurbaşkanı ve bakanları "Yüce Divan" sıfatıyla yargılar.</li>
+                        <li><b>Yargıtay:</b> Adli yargı kolunun en üst temyiz merciidir. Üyelerini HSK seçer.</li>
+                        <li><b>Danıştay:</b> İdari yargı kolunun en üst merciidir. (Devlet ile vatandaş arasındaki davalar). Üyelerinin 1/4'ünü CB, 3/4'ünü HSK seçer.</li>
+                        <li><b>Uyuşmazlık Mahkemesi:</b> Adli ve İdari yargı arasındaki görev/hüküm uyuşmazlıklarını kesin olarak çözer. Başkanını AYM üyeleri kendi içinden seçer.</li>
+                    </ul>
+                    <div class="alert-box"><strong>ÖSYM Uyarı:</strong> Sayıştay, Yüksek Seçim Kurulu (YSK) ve Hakimler ve Savcılar Kurulu (HSK) anayasada yer almalarına rağmen YÜKSEK MAHKEME DEĞİLLERDİR! Sayıştay sadece TBMM adına mali denetim yapar.</div>
+                `
+            },
+            { 
+                id: 't8', name: 'İdare Hukuku', icon: 'fa-sitemap', 
+                lecture: `
+                    <h4>1. İdarenin Bütünlüğü İlkesi</h4>
+                    <p>Devlet teşkilatının parça parça olmasını engelleyen 2 hukuki araç vardır:</p>
+                    <ul>
+                        <li><b>Hiyerarşi:</b> Aynı tüzel kişilik (Aynı kurum) içerisindeki ast-üst denetimidir. Örn: İçişleri Bakanının, Valiyi veya Valinin Kaymakamı denetlemesi hiyerarşidir.</li>
+                        <li><b>İdari Vesayet:</b> Merkezi idarenin (devletin), özerk olan yerinden yönetim kuruluşları üzerindeki (belediye, üniversite vb.) hukuki denetimidir. Örn: Valinin, Belediye Başkanını denetlemesi.</li>
+                    </ul>
+                    <h4>2. Taşra ve Yerel Yönetimler</h4>
+                    <ul>
+                        <li><b>İl İdaresi (Taşra):</b> Vali idarenin başıdır. İstisnai memurdur ve hem devleti hem CB'yi temsil eder.</li>
+                        <li><b>Belediyeler (Yerel):</b> Nüfusu en az 5.000 olan yerlerde Cumhurbaşkanı Kararı ile kurulur.</li>
+                        <li><b>Büyükşehir Belediyesi:</b> Nüfusu en az 750.000 olan yerlerde KANUN ile kurulur.</li>
+                        <li><b>Köy:</b> Nüfusu 150 ile 2000 arası olan yerlerde İçişleri Bakanlığı Kararı ile kurulur. Köy muhtarını "Köy Derneği" (Köydeki tüm seçmenler) seçer.</li>
+                    </ul>
+                `
+            },
+            { id: 't9', name: 'Güncel Bilgiler', icon: 'fa-earth-europe', lecture: 'Güncel bilgiler soru bankasıdır.' }
+        ];
+
+        // Massively Expanded DB to make 20 exams possible
+        const questionsDB = [
+            { id: 1, topicId: 't1', isCikmis: true, isAI: false, year: 2020, q: "Aşağıdakilerden hangisi hukukun yaptırımlarından biri değildir?", options: ["Ceza", "Cebri İcra", "Tazminat", "Hükümsüzlük", "Dışlama"], answer: 4, explanation: "Dışlama maddi yaptırım değildir." },
+            { id: 2, topicId: 't1', isCikmis: true, isAI: false, year: 2022, q: "Sağ ve tam doğmak koşuluyla ana rahmine düştüğü andan itibaren sahip olunan ehliyet hangisidir?", options: ["Fiil ehliyeti", "Hak ehliyeti", "Sınırlı ehliyet", "Temyiz kudreti", "Erginlik"], answer: 1, explanation: "Hak ehliyeti ana rahmine düşünce başlar." },
+            { id: 3, topicId: 't1', isCikmis: false, isAI: true, year: 0, q: "Kişinin ayırt etme gücü olmaması nedeniyle yaptığı sözleşmenin başından beri hiçbir hüküm ifade etmemesine ne ad verilir?", options: ["Mutlak Butlan", "Nispi Butlan", "Yokluk", "Tek taraflı bağlamazlık", "Fesih"], answer: 0, explanation: "Ehliyetsizlik (örneğin akıl hastasının işlemi) mutlak butlanla sakattır." },
+            { id: 4, topicId: 't1', isCikmis: true, isAI: false, year: 2016, q: "Aşağıdakilerden hangisi özel hukuk dallarından biri değildir?", options: ["Medeni Hukuk", "Ticaret Hukuku", "Borçlar Hukuku", "Devletler Özel Hukuku", "Vergi Hukuku"], answer: 4, explanation: "Vergi Hukuku kamu hukuku dalıdır." },
+            { id: 5, topicId: 't1', isCikmis: false, isAI: true, year: 0, q: "Borçlar Hukukuna göre aşağıdakilerden hangisi borcu sona erdiren sebeplerden biri DEĞİLDİR?", options: ["İfa", "İbra", "Takas", "Zamanaşımı", "Yenileme (Tecdit)"], answer: 3, explanation: "Zamanaşımı borcu sona erdirmez, sadece borcun dava yoluyla istenebilmesini (eksik borç) engeller." },
+            
+            { id: 6, topicId: 't2', isCikmis: true, isAI: false, year: 2018, q: "Egemenliğin tek bir merkezde toplandığı, idarenin bütünlük içinde olduğu devlet şekli nedir?", options: ["Federal", "Üniter", "Bölgeli", "Konfederal", "Monarşi"], answer: 1, explanation: "Üniter devlettir." },
+            { id: 7, topicId: 't2', isCikmis: false, isAI: true, year: 0, q: "Hukuk devleti ilkesinin gereklerinden biri DEĞİLDİR?", options: ["Kanuni Hakim Güvencesi", "İdarenin Yargısal Denetimi", "Kuvvetler Birliği", "Yasaların Anayasaya Uygunluğu", "Hukuki Güvenlik"], answer: 2, explanation: "Hukuk devletinde kuvvetler ayrılığı esastır, birliği değil." },
+            { id: 8, topicId: 't2', isCikmis: true, isAI: false, year: 2014, q: "Yasama organı içinden çıkan ve ona karşı sorumlu olan yürütme organının bulunduğu hükümet sistemi nedir?", options: ["Başkanlık", "Yarı Başkanlık", "Parlamenter", "Meclis Hükümeti", "Mutlak Monarşi"], answer: 2, explanation: "Parlamenter sistemdir." },
+            
+            { id: 9, topicId: 't3', isCikmis: true, isAI: false, year: 2020, q: "Türk tarihinin ilk anayasası aşağıdakilerden hangisidir?", options: ["Sened-i İttifak", "Tanzimat Fermanı", "Kanun-i Esasi", "1921 Anayasası", "1924 Anayasası"], answer: 2, explanation: "1876 Kanun-i Esasi ilk anayasadır." },
+            { id: 10, topicId: 't3', isCikmis: true, isAI: false, year: 2012, q: "1921 Anayasasının (Teşkilat-ı Esasiye) en belirgin özelliği hangisidir?", options: ["Sert olması", "Çift meclisli olması", "Çerçeve ve yumuşak olması", "Detaycı olması", "Parlamenter sistem"], answer: 2, explanation: "Tek çerçeve ve tek yumuşak anayasamızdır." },
+            { id: 11, topicId: 't3', isCikmis: false, isAI: true, year: 0, q: "Sosyal devlet ve hukuk devleti ilkeleri Türk anayasa tarihine ilk kez hangi anayasa ile girmiştir?", options: ["1876 Kanun-i Esasi", "1921 Anayasası", "1924 Anayasası", "1961 Anayasası", "1982 Anayasası"], answer: 3, explanation: "Sosyal devlet, hukuk devleti ve insan haklarına 'dayalı' devlet ibareleri ilk kez 1961'de yer aldı." },
+
+            { id: 12, topicId: 't4', isCikmis: true, isAI: false, year: 2022, q: "Aşağıdakilerden hangisi siyasi hak ve ödevlerden biridir?", options: ["Mülkiyet hakkı", "Eğitim hakkı", "Çalışma hakkı", "Dilekçe hakkı", "Sağlık hakkı"], answer: 3, explanation: "Dilekçe hakkı siyasi (aktif statü) bir haktır." },
+            { id: 13, topicId: 't4', isCikmis: false, isAI: true, year: 0, q: "Kimse, işlediği zaman yürürlükte bulunan kanunun suç saymadığı bir fiilden dolayı cezalandırılamaz. Bu ilke hangisidir?", options: ["Kanunsuz suç ve ceza olmaz", "Masumiyet karinesi", "Cezaların şahsiliği", "Doğal hakim ilkesi", "Şüpheden sanık yararlanır"], answer: 0, explanation: "Suçta ve cezada kanunilik (geçmişe yürüme yasağı) ilkesi." },
+            { id: 14, topicId: 't4', isCikmis: false, isAI: true, year: 0, q: "Mülkiyet hakkı Jellinek'in temel haklar sınıflandırmasında hangi grupta yer alır?", options: ["Siyasi Haklar", "Koruyucu (Kişisel) Haklar", "İsteme (Sosyal) Hakları", "Aktif Statü Hakları", "Katılma Hakları"], answer: 1, explanation: "Mülkiyet hakkı devlete karşı bireyi koruyan Negatif Statü (Koruyucu/Kişi) hakları arasındadır." },
+            
+            { id: 15, topicId: 't5', isCikmis: true, isAI: false, year: 2020, q: "TBMM'nin toplantı yeter sayısı kaçtır?", options: ["151", "200", "276", "301", "400"], answer: 1, explanation: "Üye tamsayısının (600) üçte biri olan 200'dür." },
+            { id: 16, topicId: 't5', isCikmis: false, isAI: true, year: 0, q: "Cumhurbaşkanının veto edemediği (geri gönderemediği) TEK kanun hangisidir?", options: ["Anayasa Değişikliği Kanunu", "Milletlerarası Antlaşma", "Bütçe Kanunu", "Genel Af Kanunu", "Vergi Kanunları"], answer: 2, explanation: "Bütçe kanunları veto edilemez." },
+            { id: 17, topicId: 't5', isCikmis: true, isAI: false, year: 2018, q: "Aşağıdakilerden hangisi kanun teklif etmeye yetkilidir?", options: ["Cumhurbaşkanı", "Bakanlar", "Siyasi Parti Grupları", "Milletvekilleri", "Meclis Başkanı"], answer: 3, explanation: "Sadece milletvekilleri kanun teklif edebilir." },
+            { id: 18, topicId: 't5', isCikmis: false, isAI: true, year: 0, q: "TBMM, bir yasama yılında en çok ne kadar tatil yapabilir?", options: ["1 ay", "2 ay", "3 ay", "4 ay", "6 ay"], answer: 2, explanation: "TBMM bir yılda en fazla 3 ay tatil yapabilir." },
+
+            { id: 19, topicId: 't6', isCikmis: true, isAI: false, year: 2021, q: "Yönetmelik çıkarma yetkisi aşağıdakilerden hangisine aittir?", options: ["Yalnızca Cumhurbaşkanı", "Sadece Bakanlıklar", "Cumhurbaşkanı, Bakanlıklar ve Kamu Tüzel Kişileri", "TBMM", "Yargıtay"], answer: 2, explanation: "CB, Bakanlıklar ve KTK yönetmelik çıkarabilir." },
+            { id: 20, topicId: 't6', isCikmis: false, isAI: true, year: 0, q: "Cumhurbaşkanı makamının herhangi bir sebeple boşalması halinde yenisi seçilene kadar vekâleti kim yürütür?", options: ["TBMM Başkanı", "En yaşlı Bakan", "Cumhurbaşkanı Yardımcısı", "Anayasa Mahkemesi Başkanı", "Genelkurmay Başkanı"], answer: 2, explanation: "2017 değişikliği ile vekalet Cumhurbaşkanı Yardımcısına verilmiştir." },
+            { id: 21, topicId: 't6', isCikmis: false, isAI: true, year: 0, q: "Olağanüstü Hal (OHAL) kararı en fazla ne kadar süreyle ilan edilebilir?", options: ["3 Ay", "6 Ay", "1 Yıl", "2 Yıl", "Süresiz"], answer: 1, explanation: "OHAL Cumhurbaşkanı tarafından en fazla 6 aylığına ilan edilebilir." },
+
+            { id: 22, topicId: 't7', isCikmis: true, isAI: false, year: 2016, q: "Anayasa Mahkemesi (AYM) üye sayısı kaçtır?", options: ["11", "13", "15", "17", "21"], answer: 2, explanation: "AYM 15 üyeden oluşur." },
+            { id: 23, topicId: 't7', isCikmis: false, isAI: true, year: 0, q: "Adli ve İdari yargı mercileri arasındaki görev ve hüküm uyuşmazlıklarını kesin olarak çözen yüksek mahkeme hangisidir?", options: ["Yargıtay", "Danıştay", "Sayıştay", "Uyuşmazlık Mahkemesi", "Anayasa Mahkemesi"], answer: 3, explanation: "Uyuşmazlık Mahkemesidir." },
+            { id: 24, topicId: 't7', isCikmis: true, isAI: false, year: 2019, q: "Hakimler ve Savcılar Kurulu (HSK) kaç üyeden oluşur?", options: ["11", "13", "15", "17", "21"], answer: 1, explanation: "HSK 13 üyeden oluşur." },
+            { id: 25, topicId: 't7', isCikmis: false, isAI: true, year: 0, q: "Aşağıdakilerden hangisi Anayasada sayılan 4 yüksek mahkemeden biri DEĞİLDİR?", options: ["Anayasa Mahkemesi", "Yargıtay", "Danıştay", "Sayıştay", "Uyuşmazlık Mahkemesi"], answer: 3, explanation: "Sayıştay mali denetim yapan bir organdır, Yüksek Mahkeme sıfatı yoktur." },
+
+            { id: 26, topicId: 't8', isCikmis: true, isAI: false, year: 2018, q: "İdarenin bütünlüğü ilkesini sağlayan araçlardan biri hangisidir?", options: ["Yerinden Yönetim", "Hiyerarşi", "Özerklik", "Kamu Tüzel Kişiliği", "Merkezden Yönetim"], answer: 1, explanation: "Hiyerarşi ve İdari Vesayet idarenin bütünlüğünü sağlar." },
+            { id: 27, topicId: 't8', isCikmis: false, isAI: true, year: 0, q: "Büyükşehir Belediyesi kurulabilmesi için nüfusun en az ne kadar olması gerekir?", options: ["100.000", "250.000", "500.000", "750.000", "1.000.000"], answer: 3, explanation: "Büyükşehir Belediyesi için en az 750.000 nüfus gereklidir." },
+            { id: 28, topicId: 't8', isCikmis: false, isAI: true, year: 0, q: "Valinin, Belediye Başkanının aldığı kararları hukuka uygunluk açısından denetlemesi aşağıdaki kavramlardan hangisiyle açıklanır?", options: ["Hiyerarşi", "Yetki Genişliği", "İdari Vesayet", "Özerklik", "Ademi Merkeziyet"], answer: 2, explanation: "Merkezi yönetimin yerinden yönetimler üzerindeki denetimi 'İdari Vesayet'tir." },
+            
+            // Current Events
+            { id: 29, topicId: 't9', isCikmis: false, isAI: true, year: 0, q: "2024 Olimpiyat Oyunları hangi şehirde düzenlenmiştir?", options: ["Tokyo", "Los Angeles", "Paris", "Londra", "Roma"], answer: 2, explanation: "Paris'te düzenlendi." },
+            { id: 30, topicId: 't9', isCikmis: true, isAI: false, year: 2022, q: "Birleşmiş Milletler Genel Sekreteri kimdir?", options: ["Kofi Annan", "Ban Ki-moon", "Antonio Guterres", "Jens Stoltenberg", "Tedros Adhanom"], answer: 2, explanation: "Antonio Guterres." },
+            { id: 31, topicId: 't9', isCikmis: false, isAI: true, year: 0, q: "Avrupa Merkez Bankası (ECB) Başkanı kimdir?", options: ["Christine Lagarde", "Ursula von der Leyen", "Mario Draghi", "Jerome Powell", "Kristalina Georgieva"], answer: 0, explanation: "Christine Lagarde." },
+            { id: 32, topicId: 't9', isCikmis: false, isAI: true, year: 0, q: "Türkiye'nin ilk astronotu Alper Gezeravcı'nın görev yaptığı uzay misyonunun adı nedir?", options: ["Artemis", "Apollo", "Axiom-3", "Soyuz", "Crew Dragon"], answer: 2, explanation: "Axiom-3 (Ax-3) misyonudur." },
+            { id: 33, topicId: 't9', isCikmis: false, isAI: true, year: 0, q: "NATO'ya 2024 yılında katılan son ülke (32. üye) hangisidir?", options: ["Finlandiya", "İsveç", "Ukrayna", "Gürcistan", "Kuzey Makedonya"], answer: 1, explanation: "İsveç'tir." },
+            { id: 34, topicId: 't9', isCikmis: false, isAI: true, year: 0, q: "Türkiye'nin ilk yerli gözlem uydusunun adı nedir?", options: ["Göktürk-1", "Türksat 6A", "İMECE", "Rasat", "Bilsat"], answer: 2, explanation: "İMECE'dir." },
+            { id: 35, topicId: 't9', isCikmis: false, isAI: true, year: 0, q: "G7 Dönem Başkanlığını 2024 yılında hangi ülke üstlenmiştir?", options: ["ABD", "Almanya", "Japonya", "İtalya", "İngiltere"], answer: 3, explanation: "2024 G7 Dönem Başkanı İtalya'dır." },
+            { id: 36, topicId: 't9', isCikmis: false, isAI: true, year: 0, q: "E-Devlet sisteminin sunulduğu altyapı olan ve 'www.turkiye.gov.tr' adresini işleten kurum hangisidir?", options: ["TÜBİTAK", "TÜRKSAT", "ASELSAN", "HAVELSAN", "BİLGEM"], answer: 1, explanation: "TÜRKSAT işletmektedir." }
+        ];
+
+        /* --- USER DATA & GAMIFICATION LOGIC --- */
+        let userStats = JSON.parse(localStorage.getItem('kpssStatsV7')) || { 
+            totalSolved: 0, correct: 0, wrong: 0, 
+            xp: 0, streakDays: 0, lastLogin: '',
+            topicStats: {}, mistakes: [], mockScores: [] 
+        };
+        topics.forEach(t => { if(!userStats.topicStats[t.id]) userStats.topicStats[t.id] = {s:0, c:0}; });
+
+        const ranks = [
+            { name: "Aday Memur", xp: 0, color: "#94a3b8" },
+            { name: "Memur", xp: 100, color: "#10b981" },
+            { name: "Şef", xp: 300, color: "#3b82f6" },
+            { name: "Müdür", xp: 600, color: "#8b5cf6" },
+            { name: "Müsteşar", xp: 1000, color: "#f59e0b" },
+            { name: "Bakan", xp: 1500, color: "#ef4444" },
+            { name: "Cumhurbaşkanı", xp: 2500, color: "#fcd34d" }
+        ];
+
+        function checkDailyStreak() {
+            const today = new Date().toISOString().split('T')[0];
+            if (userStats.lastLogin !== today) {
+                if (userStats.lastLogin) {
+                    const lastDate = new Date(userStats.lastLogin);
+                    const currDate = new Date(today);
+                    const diffTime = Math.abs(currDate - lastDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if (diffDays === 1) userStats.streakDays += 1;
+                    else userStats.streakDays = 1; // broken streak
+                } else {
+                    userStats.streakDays = 1; // first time
+                }
+                userStats.lastLogin = today;
+                saveStats();
+            }
+        }
+
+        function getCurrentRank() {
+            let current = ranks[0];
+            for(let i=0; i<ranks.length; i++) { if(userStats.xp >= ranks[i].xp) current = ranks[i]; }
+            return current;
+        }
+        
+        function getNextRankXP() {
+            for(let i=0; i<ranks.length; i++) { if(userStats.xp < ranks[i].xp) return ranks[i].xp; }
+            return userStats.xp; // Max rank reached
+        }
+
+        function saveStats() { localStorage.setItem('kpssStatsV7', JSON.stringify(userStats)); updateDashboard(); }
+        
+        function recordAnswer(qId, topicId, isCorrect) {
+            userStats.totalSolved++; userStats.topicStats[topicId].s++;
+            if (isCorrect) {
+                userStats.correct++; userStats.topicStats[topicId].c++;
+                userStats.xp += 10; // Gain 10 XP per correct answer
+                userStats.mistakes = userStats.mistakes.filter(id => id !== qId);
+            } else {
+                userStats.wrong++;
+                if (!userStats.mistakes.includes(qId)) userStats.mistakes.push(qId);
+            }
+            saveStats();
+        }
+
+        function recordMockScore(score) {
+            userStats.mockScores.push(score);
+            if(userStats.mockScores.length > 10) userStats.mockScores.shift(); // keep last 10
+            saveStats();
+        }
+
+        /* --- UI & NAVIGATION UPDATE --- */
+        function updateDashboard() {
+            // Sidebar UI updates
+            const rank = getCurrentRank();
+            const nextXP = getNextRankXP();
+            const progress = nextXP > userStats.xp ? Math.round((userStats.xp / nextXP) * 100) : 100;
+            
+            document.getElementById('ui-rank-name').innerHTML = `<i class="fa-solid fa-medal"></i> ${rank.name}`;
+            document.getElementById('ui-rank-name').style.color = rank.color;
+            document.getElementById('ui-xp-bar').style.width = `${progress}%`;
+            document.getElementById('ui-xp-text').innerText = `${userStats.xp} XP / ${nextXP} XP`;
+            document.getElementById('ui-streak-days').innerText = `${userStats.streakDays} Gün`;
+
+            // Main Dashboard Updates
+            document.getElementById('dash-total-q').innerText = userStats.totalSolved;
+            let totalRate = userStats.totalSolved > 0 ? Math.round((userStats.correct / userStats.totalSolved) * 100) : 0;
+            document.getElementById('dash-accuracy').innerText = `%${totalRate}`;
+            
+            // Topic Progress
+            let r1 = userStats.topicStats['t1'].s > 0 ? Math.round((userStats.topicStats['t1'].c/userStats.topicStats['t1'].s)*100) : 0;
+            let r2 = userStats.topicStats['t8'].s > 0 ? Math.round((userStats.topicStats['t8'].c/userStats.topicStats['t8'].s)*100) : 0;
+            let r3 = userStats.topicStats['t5'].s > 0 ? Math.round((userStats.topicStats['t5'].c/userStats.topicStats['t5'].s)*100) : 0;
+            
+            document.getElementById('dash-bar-1').style.width = `${r1}%`; document.getElementById('dash-prog-1').innerText = `%${r1}`;
+            document.getElementById('dash-bar-2').style.width = `${r2}%`; document.getElementById('dash-prog-2').innerText = `%${r2}`;
+            document.getElementById('dash-bar-3').style.width = `${r3}%`; document.getElementById('dash-prog-3').innerText = `%${r3}`;
+
+            // Chart Render
+            renderChart();
+        }
+
+        function renderChart() {
+            const chartDiv = document.getElementById('dash-chart');
+            if(userStats.mockScores.length === 0) {
+                chartDiv.innerHTML = '<div style="width:100%; text-align:center; padding: 2rem 0; color:var(--text-muted);">Grafik için deneme çözmeniz gerekiyor. (Son 10 deneme baz alınır).</div>';
+                return;
+            }
+            chartDiv.innerHTML = '';
+            userStats.mockScores.forEach((score, index) => {
+                let heightPct = Math.round((score / 15) * 100);
+                let color = score >= 12 ? 'var(--success)' : (score >= 8 ? 'var(--warning)' : 'var(--danger)');
+                chartDiv.innerHTML += `
+                    <div class="chart-bar-wrapper">
+                        <div class="chart-tooltip">${score} Net</div>
+                        <div class="chart-bar" style="height: ${heightPct}%; background: ${color};"></div>
+                        <div class="chart-label">D.${index + 1}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function showModule(moduleId) {
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'" + moduleId + "'")) {
+                    btn.classList.add('active');
+                }
+            });
+            document.querySelectorAll('.module-content').forEach(mod => mod.classList.remove('active'));
+            document.getElementById(moduleId).classList.add('active');
+            
+            // Close mobile menu
+            document.getElementById('sidebar').classList.remove('open');
+            
+            if(examInterval) clearInterval(examInterval);
+            if(survivorInterval) clearInterval(survivorInterval);
+            document.getElementById('exam-timer').style.display = 'none';
+
+            if (moduleId === 'home') updateDashboard();
+            if (moduleId === 'm1') initYears();
+            if (moduleId === 'm2') initTopics();
+            if (moduleId === 'm4') initM4(); 
+            if (moduleId === 'm6') loadMistakes();
+        }
+
+        // --- POMODORO LOGIC ---
+        let pomoInterval; let pomoTime = 25 * 60; let isPomoRunning = false; let isPomoBreak = false;
+        function updatePomoUI() {
+            let m = Math.floor(pomoTime / 60); let s = pomoTime % 60;
+            document.getElementById('pomo-time').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.getElementById('pomo-play-btn').innerHTML = isPomoRunning ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+        }
+        function togglePomodoro() {
+            if(isPomoRunning) { clearInterval(pomoInterval); isPomoRunning = false; }
+            else {
+                isPomoRunning = true;
+                pomoInterval = setInterval(() => {
+                    pomoTime--;
+                    if(pomoTime <= 0) {
+                        clearInterval(pomoInterval); isPomoRunning = false;
+                        if(!isPomoBreak) {
+                            isPomoBreak = true; pomoTime = 5 * 60; 
+                            document.getElementById('pomo-widget').classList.add('pomo-break');
+                            document.getElementById('pomo-status').innerHTML = '<i class="fa-solid fa-mug-hot"></i> Mola Zamanı';
+                            alert("25 dakikalık çalışma bitti. 5 dakika mola vakti.");
+                        } else {
+                            isPomoBreak = false; pomoTime = 25 * 60;
+                            document.getElementById('pomo-widget').classList.remove('pomo-break');
+                            document.getElementById('pomo-status').innerHTML = '<i class="fa-solid fa-brain"></i> Odaklan';
+                            alert("Mola bitti! Odaklanma zamanı.");
+                        }
+                    }
+                    updatePomoUI();
+                }, 1000);
+            }
+            updatePomoUI();
+        }
+        function resetPomodoro() { clearInterval(pomoInterval); isPomoRunning = false; isPomoBreak = false; pomoTime = 25 * 60; document.getElementById('pomo-widget').classList.remove('pomo-break'); document.getElementById('pomo-status').innerHTML = '<i class="fa-solid fa-brain"></i> Odaklan'; updatePomoUI(); }
+
+        // --- M2: KONU KAMPI ---
+        function initTopics() {
+            document.getElementById('m2-station').style.display = 'none'; document.getElementById('m2-list').style.display = 'grid';
+            const list = document.getElementById('m2-list'); list.innerHTML = '';
+            topics.filter(t => t.id !== 't9').forEach(t => {
+                let s = userStats.topicStats[t.id]; let rate = s.s > 0 ? Math.round((s.c/s.s)*100) : 0;
+                list.innerHTML += `
+                    <div class="glass-card clickable-card" onclick="openTopicStation('${t.id}')">
+                        <div style="font-size:2rem; color:var(--primary); margin-bottom:1rem;"><i class="fa-solid ${t.icon}"></i></div>
+                        <h3 style="margin-bottom:0.5rem; font-size:1.1rem;">${t.name}</h3>
+                        <div class="xp-bar-container"><div class="xp-bar-fill" style="width: ${rate}%;"></div></div>
+                    </div>`;
+            });
+        }
+        let currentActiveTopic = '';
+        function openTopicStation(topicId) {
+            document.getElementById('m2-list').style.display = 'none'; document.getElementById('m2-station').style.display = 'block';
+            let t = topics.find(x => x.id === topicId); currentActiveTopic = topicId;
+            document.getElementById('station-title').innerText = t.name;
+            document.getElementById('station-lecture-html').innerHTML = t.lecture;
+            switchStationTab('lecture');
+        }
+        function switchStationTab(tabId) {
+            document.querySelectorAll('.station-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.station-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active'); document.getElementById(`content-${tabId}`).classList.add('active');
+            if(tabId === 'quiz') startTopicQuiz(currentActiveTopic);
+        }
+
+        // --- M4: 20 YZ NOKTA ATIŞI DENEME ---
+        function initM4() {
+            const list = document.getElementById('m4-list'); list.innerHTML = '';
+            for(let i=1; i<=20; i++) {
+                list.innerHTML += `
+                    <div class="glass-card clickable-card" style="text-align:center; padding: 1.5rem;" onclick="startExam('m4', 'Nokta Atışı Deneme ${i}')">
+                        <div style="font-size: 2rem; font-weight:800; color:var(--purple); margin-bottom: 0.5rem;">#${i}</div>
+                        <h4 style="color:var(--text-light); margin-bottom: 0.5rem;">Deneme Sınavı</h4>
+                        <p style="color:var(--text-muted); font-size: 0.8rem;">15 Soru (AI Destekli)</p>
+                    </div>`;
+            }
+        }
+
+        function initYears() {
+            const years = [2023, 2022, 2020, 2018, 2016, 2014, 2012];
+            const list = document.getElementById('m1-list'); list.innerHTML = '';
+            years.forEach(y => {
+                list.innerHTML += `
+                    <div class="glass-card clickable-card" style="text-align:center;" onclick="startExam('m1', '${y} KPSS Çıkmış Sorular', '${y}')">
+                        <i class="fa-solid fa-calendar-check" style="font-size: 2.5rem; color: var(--warning); margin-bottom: 1rem;"></i>
+                        <h3>${y} Yılı</h3><p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.5rem;">Çıkmış Sınav</p>
+                    </div>`;
+            });
+        }
+
+        // --- EXAM ENGINE (M1, M2 Quiz, M4, Survivor) ---
+        let currentQuizQueue = []; let currentQIndex = 0; let isExamMode = false; let examScore = 0; let examInterval; let timeRemaining = 15 * 60;
+        let isSurvivorMode = false; let survivorInterval; let survivorTimeLeft = 20; let currentContainer = '';
+
+        function startExam(modId, examName, yearFilter = null, isSurvivor = false) {
+            if(document.getElementById(`${modId}-list`)) document.getElementById(`${modId}-list`).style.display = 'none';
+            document.getElementById(`${modId}-result`).style.display = 'none'; document.getElementById(`${modId}-quiz`).style.display = 'block';
+            currentContainer = `${modId}-container`;
+            document.getElementById(currentContainer).classList.remove('survivor-active');
+
+            isExamMode = true; isSurvivorMode = isSurvivor; examScore = 0;
+            
+            let vQ = questionsDB.filter(q => q.topicId !== 't9').sort(()=>0.5-Math.random()).slice(0,9);
+            let gQ = questionsDB.filter(q => q.topicId === 't9').sort(()=>0.5-Math.random()).slice(0,6);
+            
+            if (yearFilter) {
+                let yr = parseInt(yearFilter);
+                let yearQ = questionsDB.filter(q => q.year === yr);
+                let otherV = questionsDB.filter(q => q.topicId !== 't9' && q.year !== yr).sort(()=>0.5-Math.random());
+                let otherG = questionsDB.filter(q => q.topicId === 't9' && q.year !== yr).sort(()=>0.5-Math.random());
+                vQ = [...yearQ.filter(q=>q.topicId!=='t9'), ...otherV].slice(0,9);
+                gQ = [...yearQ.filter(q=>q.topicId==='t9'), ...otherG].slice(0,6);
+            }
+
+            currentQuizQueue = [...vQ, ...gQ]; currentQIndex = 0;
+
+            if (isSurvivorMode) {
+                document.getElementById(currentContainer).classList.add('survivor-active');
+                renderQuestion(currentContainer, examName);
+            } else {
+                const timerBox = document.getElementById('exam-timer');
+                timerBox.style.display = 'block'; timerBox.classList.remove('warning');
+                timeRemaining = 15 * 60;
+                renderQuestion(currentContainer, examName);
+                examInterval = setInterval(() => {
+                    timeRemaining--;
+                    let m = Math.floor(timeRemaining / 60); let s = timeRemaining % 60;
+                    timerBox.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                    if(timeRemaining <= 60) timerBox.classList.add('warning');
+                    if (timeRemaining <= 0) { clearInterval(examInterval); finishExam(modId); }
+                }, 1000);
+            }
+        }
+
+        function startTopicQuiz(topicId) {
+            isExamMode = false; isSurvivorMode = false;
+            let qPool = questionsDB.filter(q => q.topicId === topicId);
+            if(qPool.length === 0) { document.getElementById('m2-quiz-container').innerHTML = '<p>Bu konu için soru bulunamadı.</p>'; return; }
+            currentQuizQueue = qPool.sort(()=>0.5-Math.random()); currentQIndex = 0;
+            renderQuestion('m2-quiz-container');
+        }
+
+        function renderQuestion(containerId, examName = '') {
+            if (currentQIndex >= currentQuizQueue.length) { 
+                if(isExamMode) finishExam(containerId.split('-')[0]);
+                else document.getElementById(containerId).innerHTML = '<div style="text-align:center; padding:2rem;"><i class="fa-solid fa-check-circle" style="font-size:4rem; color:var(--success); margin-bottom:1.5rem;"></i><h3>Konu Testi Tamamlandı!</h3><p>Deneyim puanı kazandın.</p></div>';
+                return; 
+            }
+            
+            const q = currentQuizQueue[currentQIndex]; const letters = ['A', 'B', 'C', 'D', 'E'];
+            let sectionName = q.topicId === 't9' ? 'Güncel Bilgiler (6 Soru)' : 'Vatandaşlık (9 Soru)';
+            let badges = '';
+            if(q.isCikmis) badges += `<span class="badge"><i class="fa-solid fa-star"></i> Çıkmış Soru</span>`;
+            if(q.isAI) badges += `<span class="badge ai-badge"><i class="fa-solid fa-robot"></i> YZ Tahmini</span>`;
+            
+            let html = `
+                ${isSurvivorMode ? `<div class="survivor-bar-container"><div class="survivor-bar-fill" id="sv-bar-${containerId}"></div></div>` : ''}
+                <div class="question-box">
+                    <div style="display:flex; justify-content:space-between; margin-bottom: 1.5rem;">
+                        <div><span style="padding:0.3rem 0.8rem; background:rgba(79,70,229,0.2); color:#818cf8; border-radius:6px; font-size:0.85rem; font-weight:700;">SORU ${currentQIndex + 1} / ${currentQuizQueue.length}</span><span style="font-size:0.85rem; margin-left:0.5rem; color:var(--text-muted);">${sectionName}</span> ${badges}</div>
+                        ${examName ? `<span style="color:var(--warning); font-weight:600;">${examName}</span>` : ''}
+                    </div>
+                    <div class="question-text">${q.q}</div>
+                    <div class="options" id="opts-${containerId}">
+                        ${q.options.map((opt, i) => `<div class="option" onclick="handleSelect(this, ${i}, ${q.answer}, '${containerId}', ${q.id}, '${q.topicId}')"><div class="option-letter">${letters[i]}</div>${opt}</div>`).join('')}
+                    </div>
+                    <div class="feedback-msg" id="fb-${containerId}"></div>
+                </div>
+                <div class="controls"><button class="btn" id="next-btn-${containerId}" onclick="nextQ('${containerId}', '${examName}')" ${isExamMode && !isSurvivorMode ? '' : 'style="display:none;"'}>Sonraki Soru <i class="fa-solid fa-arrow-right"></i></button></div>
+            `;
+            document.getElementById(containerId).innerHTML = html;
+
+            if (isSurvivorMode) {
+                survivorTimeLeft = 20; const bar = document.getElementById(`sv-bar-${containerId}`);
+                if(survivorInterval) clearInterval(survivorInterval);
+                bar.style.width = '100%';
+                setTimeout(() => {
+                    bar.style.width = '0%';
+                    survivorInterval = setInterval(() => {
+                        survivorTimeLeft--;
+                        if (survivorTimeLeft <= 0) { clearInterval(survivorInterval); handleSelect(null, -1, q.answer, containerId, q.id, q.topicId); }
+                    }, 1000);
+                }, 50);
+            }
+        }
+
+        function handleSelect(el, selectedIndex, correctIndex, containerId, qId, topicId) {
+            const options = document.getElementById(`opts-${containerId}`).children;
+            for(let i=0; i<options.length; i++) if(options[i].classList.contains('selected')) return;
+            if(el) el.classList.add('selected');
+            
+            if (isSurvivorMode) clearInterval(survivorInterval);
+
+            const isCorrect = selectedIndex === correctIndex;
+            recordAnswer(qId, topicId, isCorrect);
+            if (isCorrect && isExamMode) examScore++;
+
+            if (isExamMode && !isSurvivorMode) return; // Silent in normal exam
+
+            setTimeout(() => {
+                if(isSurvivorMode) {
+                    if (isCorrect) { if(el) el.classList.add('correct'); setTimeout(() => nextQ(containerId, 'Survivor Modu'), 1000); } 
+                    else { if(el) el.classList.add('wrong'); options[correctIndex].classList.add('correct'); setTimeout(() => nextQ(containerId, 'Survivor Modu'), 1500); }
+                } else {
+                    const fb = document.getElementById(`fb-${containerId}`); const qData = questionsDB.find(x => x.id === qId);
+                    if (isCorrect) {
+                        if(el) el.classList.add('correct'); fb.className = 'feedback-msg correct';
+                        fb.innerHTML = `<strong><i class="fa-solid fa-circle-check"></i> Doğru! (+10 XP)</strong><br><div style="font-size:0.95rem; margin-top:0.5rem;">${qData.distractor || qData.explanation}</div>`;
+                    } else {
+                        if(el) el.classList.add('wrong'); options[correctIndex].classList.add('correct'); fb.className = 'feedback-msg wrong';
+                        fb.innerHTML = `<strong><i class="fa-solid fa-circle-xmark"></i> Yanlış Cevap</strong><br><div style="font-size:0.95rem; margin-top:0.5rem;"><strong>Çözüm:</strong> ${qData.explanation}</div>`;
+                    }
+                    document.getElementById(`next-btn-${containerId}`).style.display = 'inline-flex';
+                }
+            }, 300);
+        }
+
+        function nextQ(containerId, examName) { currentQIndex++; renderQuestion(containerId, examName); }
+
+        function finishExam(modId) {
+            if(examInterval) clearInterval(examInterval); if(survivorInterval) clearInterval(survivorInterval);
+            document.getElementById('exam-timer').style.display = 'none'; document.getElementById(`${modId}-quiz`).style.display = 'none';
+            
+            const resBox = document.getElementById(`${modId}-result`); resBox.style.display = 'block';
+            let total = currentQuizQueue.length; let wrong = total - examScore;
+            
+            // Log score for chart
+            recordMockScore(examScore);
+
+            resBox.innerHTML = `
+                <div style="text-align:center; padding: 3rem 1rem;">
+                    <i class="fa-solid fa-ranking-star" style="font-size:5rem; color:var(--primary); margin-bottom:1.5rem;"></i>
+                    <h2 style="margin-bottom:2rem; font-size:2.5rem;">Sınav Sonucu</h2>
+                    <div class="grid-3" style="max-width:800px; margin: 0 auto;">
+                        <div style="padding:1.5rem; background:rgba(255,255,255,0.03); border-radius:12px; border-bottom:4px solid var(--info);"><div style="font-size:2.5rem; font-weight:800;">${total}</div><div style="color:var(--text-muted);">Toplam</div></div>
+                        <div style="padding:1.5rem; background:rgba(34,197,94,0.1); border-radius:12px; border-bottom:4px solid var(--success);"><div style="font-size:2.5rem; font-weight:800; color:#4ade80;">${examScore}</div><div style="color:var(--text-muted);">Doğru</div></div>
+                        <div style="padding:1.5rem; background:rgba(239,68,68,0.1); border-radius:12px; border-bottom:4px solid var(--danger);"><div style="font-size:2.5rem; font-weight:800; color:#f87171;">${wrong}</div><div style="color:var(--text-muted);">Yanlış/Boş</div></div>
+                    </div>
+                    <p style="margin-top:2rem; color:var(--text-muted);">* XP kazandın ve Grafiğin güncellendi!</p>
+                    <button class="btn" style="margin-top:1.5rem; padding: 1rem 2rem; font-size: 1.1rem;" onclick="location.reload()">Kontrol Paneline Dön</button>
+                </div>`;
+        }
+
+        // --- M6: Yanlışlarım ---
+        function loadMistakes() {
+            const listDiv = document.getElementById('mistakes-list'); const emptyDiv = document.getElementById('mistakes-empty');
+            if (userStats.mistakes.length === 0) { listDiv.style.display = 'none'; emptyDiv.style.display = 'block'; return; }
+            emptyDiv.style.display = 'none'; listDiv.style.display = 'block'; listDiv.innerHTML = '';
+            
+            userStats.mistakes.forEach(qId => {
+                let q = questionsDB.find(x => x.id === qId); if(!q) return;
+                let t = topics.find(t=>t.id===q.topicId);
+                listDiv.innerHTML += `
+                    <div class="glass-card" style="margin-bottom: 1.5rem;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:1rem; font-size:0.85rem; color:var(--text-muted);">
+                            <span><i class="fa-solid fa-tag"></i> ${t ? t.name : 'Genel'}</span>
+                        </div>
+                        <div class="question-text" style="font-size:1.1rem;">${q.q}</div>
+                        <div style="background:rgba(255,255,255,0.02); padding:1.5rem; border-radius:12px; margin-top:1rem; border-left: 4px solid var(--danger);">
+                            <span style="color:var(--success); font-weight:600;">Doğru Cevap:</span> ${q.options[q.answer]}
+                            <div style="margin-top:0.8rem; font-size:1rem; color:var(--text-muted); line-height:1.6;"><strong>Çözüm:</strong> ${q.explanation}</div>
+                        </div>
+                    </div>`;
+            });
+        }
+        
+        // Init System
+        checkDailyStreak();
+        updateDashboard();
+    </script>
+</body>
+</html>
