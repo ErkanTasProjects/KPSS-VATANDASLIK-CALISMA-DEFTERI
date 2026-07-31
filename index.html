@@ -32,6 +32,7 @@
             background-color: var(--dark-bg);
             color: var(--text-light);
             display: flex;
+            flex-direction: column;
             min-height: 100vh;
             overflow-x: hidden;
         }
@@ -129,8 +130,13 @@
             .sidebar { transform: translateX(-100%); }
             .sidebar.open { transform: translateX(0); }
             .main-wrapper { margin-left: 0; }
-            .top-bar { display: flex; }
-            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .top-bar { display: flex; width: 100%; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            
+            .pomodoro-widget { bottom: 10px; right: 10px; width: 110px; padding: 0.5rem; }
+            .pomo-time { font-size: 1.3rem; }
+            .pomo-status { font-size: 0.7rem; }
+            .content-area { padding: 1rem; }
         }
 
         /* POMODORO */
